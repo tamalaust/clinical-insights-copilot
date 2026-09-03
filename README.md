@@ -22,7 +22,7 @@ Agentic AI copilot for exploring aggregate hospital data. A Streamlit dashboard 
 
 Monolith, chosen deliberately over a microservices split for this project's scope: one FastAPI backend, one Streamlit UI, calling each other over HTTP within the same repo.
 
-![Architecture diagram](docs/architecture.png)
+![Architecture diagram](architecture_digram.png)
 
 - **ETL module** (`etl/`) — pandas pipeline: cleans the raw dataset, flags outliers (IQR method, never drops rows), decodes ID columns via `IDS_mapping.csv`, loads into Postgres
 - **Streamlit UI** (`ui/`) — Dashboard tab (4 fixed charts) and Chat tab (calls the backend over HTTP)
@@ -35,11 +35,11 @@ Monolith, chosen deliberately over a microservices split for this project's scop
 
 ### Request flow
 
-![Chat request flow](docs/chat_flow.png)
+![Chat request flow](flow_digram.png)
 
 ### Sequence
 
-![Sequence diagram](docs/sequence.png)
+![Sequence diagram](sequence_digram.png)
 
 ## Tech stack
 
