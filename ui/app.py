@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import plotly.express as px
+import requests
 import streamlit as st
 
 from ui.charts import (
@@ -14,6 +15,7 @@ from ui.charts import (
     readmission_rate_by_age,
     time_in_hospital_distribution,
 )
+from ui.chat_client import send_chat_message
 from ui.data_access import load_cleaned_data
 
 st.set_page_config(page_title="Clinical Insights Copilot", layout="wide")
@@ -68,4 +70,34 @@ with dashboard_tab:
         st.plotly_chart(fig, use_container_width=True)
 
 with chat_tab:
-    st.info("Agentic chat coming in the next phase.")
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    for msg in st.session_state.chat_history:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
+
+    user_input = st.chat_input("Ask about the data, e.g. 'why is readmission higher for older patients?'")
+
+    if user_input:
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.write(user_input)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                try:
+                    result = send_chat_message(user_input, st.session_state.chat_history[:-1])
+                    answer = result["answer"]
+                    from_cache = result["from_cache"]
+                except requests.exceptions.RequestException:
+                    answer = (
+                        "Sorry, I couldn't reach the backend. "
+                        "Make sure the FastAPI server is running (`uvicorn app.main:app --reload`)."
+                    )
+                    from_cache = False
+            if from_cache:
+                st.markdown(":red[⚡ Served from cache]")
+            st.write(answer)
+
+        st.session_state.chat_history.append({"role": "assistant", "content": answer})

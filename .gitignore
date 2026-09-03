@@ -1,5 +1,5 @@
 /requirements.txt
 /.venv/
-/etl/.env
-/etl/.env
+/.env
+/.env
 /data/raw/.gitkeep
